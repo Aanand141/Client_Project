@@ -105,6 +105,9 @@ function displayPatterns(patterns) {
     }
 }
 
+// Array to store successful matches
+let successfulMatches = [];
+
 function searchNumber() {
     const searchNum = document.getElementById('searchNumber').value;
     if (!/^\d{6}$/.test(searchNum)) {
@@ -115,11 +118,17 @@ function searchNumber() {
     const tbody = document.getElementById('patternTableBody');
     const rows = tbody.getElementsByTagName('tr');
     let found = false;
+    let matchedPattern = '';
 
     for (const row of rows) {
         const cells = row.getElementsByTagName('td');
-        if (cells[1].textContent === searchNum || cells[2].textContent === searchNum) {
+        if (cells[1].textContent === searchNum) {
             found = true;
+            matchedPattern = cells[1].textContent;
+            break;
+        } else if (cells[2].textContent === searchNum) {
+            found = true;
+            matchedPattern = cells[2].textContent;
             break;
         }
     }
@@ -127,7 +136,40 @@ function searchNumber() {
     const resultDiv = document.getElementById('searchResult');
     if (found) {
         resultDiv.innerHTML = '<p class="match-found">✅ मिलान मिला!</p>';
+        // Save the successful match
+        saveSuccessfulMatch(searchNum, matchedPattern);
     } else {
         resultDiv.innerHTML = '<p class="no-match">❌ कोई मिलान नहीं मिला</p>';
     }
+}
+
+function saveSuccessfulMatch(searchedNumber, matchedPattern) {
+    // Create new match entry
+    const match = {
+        dateTime: new Date().toLocaleString(),
+        searchedNumber: searchedNumber,
+        matchedPattern: matchedPattern
+    };
+
+    // Add to successful matches array
+    successfulMatches.push(match);
+
+    // Update the successful matches table
+    updateSuccessfulMatchesTable();
+}
+
+function updateSuccessfulMatchesTable() {
+    const tbody = document.getElementById('successfulMatches');
+    tbody.innerHTML = '';
+
+    // Add each successful match to the table
+    successfulMatches.forEach(match => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${match.dateTime}</td>
+            <td>${match.searchedNumber}</td>
+            <td>${match.matchedPattern}</td>
+        `;
+        tbody.appendChild(row);
+    });
 } 
